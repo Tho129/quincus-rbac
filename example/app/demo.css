@@ -1,0 +1,170 @@
+/* Styling of the stand-in app shell only — the RBAC UI brings its own styles.css. */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.demo-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.demo-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 14px;
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+}
+
+.demo-brand {
+  font-weight: 700;
+  padding: 0 8px;
+}
+
+.demo-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.demo-nav a {
+  color: #334155;
+  text-decoration: none;
+  padding: 7px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.demo-nav a:hover {
+  background: #e2e8f0;
+}
+
+.demo-nav__section {
+  margin-top: 12px;
+  padding: 0 8px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.demo-signin {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.demo-signin select,
+.demo-signin button {
+  font: inherit;
+  padding: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.demo-signin button {
+  cursor: pointer;
+}
+
+.demo-main {
+  flex: 1;
+  min-width: 0;
+  padding: 28px 32px;
+}
+
+.demo-page h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+.demo-muted {
+  color: #64748b;
+}
+
+.demo-perms {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.demo-perms code {
+  font-size: 12px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.demo-table {
+  border-collapse: collapse;
+  margin-top: 16px;
+  min-width: 480px;
+}
+
+.demo-table th,
+.demo-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.demo-denied {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+@media (max-width: 720px) {
+  .demo-shell {
+    flex-direction: column;
+  }
+
+  .demo-sidebar {
+    width: auto;
+    border-right: 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .demo-main {
+    padding: 20px 16px;
+  }
+}
+
+.demo-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.demo-toolbar button,
+.demo-toolbar a {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #0f172a;
+  text-decoration: none;
+  cursor: pointer;
+}

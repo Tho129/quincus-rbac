@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.tgz
+*.tsbuildinfo
+example/.next/
+example/next-env.d.ts
+.DS_Store

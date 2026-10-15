@@ -1,0 +1,72 @@
+{
+  "name": "@quincusdev/rbac",
+  "version": "0.1.0",
+  "description": "Multi-tenant role-based access control for Quincus Node.js apps: Postgres storage, admin API, Next.js and Express adapters, and a themeable React admin UI.",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuincusDev/quincus-rbac.git"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    },
+    "./styles.css": "./styles.css",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "quincus-rbac": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "styles.css",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p example/tsconfig.json",
+    "test": "node --test --require tsx/cjs test/unit/*.test.ts",
+    "test:db": "node --test --require tsx/cjs test/db/*.test.ts",
+    "example": "next dev example -p 3100",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "peerDependencies": {
+    "pg": ">=8.11",
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.37",
+    "@types/pg": "8.20.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "next": "16.3.8",
+    "pg": "8.20.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  }
+}
