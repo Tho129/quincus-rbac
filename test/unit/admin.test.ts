@@ -4,8 +4,9 @@ import { createAdmin, seedTenantAdmin } from "../../src/admin";
 import { buildCatalog } from "../../src/catalog";
 import { RbacError } from "../../src/errors";
 import { memoryStorage } from "../../src/storage/memory";
+import type { TenantUser } from "../../src/types";
 
-function setup(listUsers?: (tenantId: string) => Promise<{ id: string; name?: string }[]>) {
+function setup(listUsers?: (tenantId: string) => Promise<TenantUser[]>) {
   const storage = memoryStorage();
   const invalidated: string[] = [];
   const admin = createAdmin({
@@ -114,4 +115,17 @@ test("seedTenantAdmin avoids a name clash with an existing custom Admin role", a
   await admin.createRole(ctx, { name: "admin", permissions: [] });
   const system = await seedTenantAdmin(storage, "t1", "u1");
   assert.equal(system.name, "System Admin");
+});
+
+test("listUsers normalises the groups an app returns (Cognito string or array)", async () => {
+  const { admin, ctx } = setup(async () => [
+    { id: "u1", groups: "[Finance, Staff]" },
+    { id: "u2", groups: ["Ops"] },
+    { id: "u3" },
+  ]);
+  assert.deepEqual(await admin.listUsers(ctx), [
+    { id: "u1", groups: ["Finance", "Staff"], roleIds: [] },
+    { id: "u2", groups: ["Ops"], roleIds: [] },
+    { id: "u3", roleIds: [] },
+  ]);
 });

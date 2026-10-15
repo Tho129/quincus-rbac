@@ -44,6 +44,12 @@ export interface TenantUser {
   id: string;
   name?: string;
   email?: string;
+  /**
+   * The user's IdP groups, when the app knows them (`string[]`, or Cognito's
+   * `"A"` / `"[A, B]"`). Lets the admin UI show the roles a user gets through
+   * group mappings, next to their direct roles.
+   */
+  groups?: string[] | string;
 }
 
 export interface RbacChangeEvent {

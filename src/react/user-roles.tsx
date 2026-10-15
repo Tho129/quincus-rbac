@@ -4,19 +4,23 @@ import { useEffect, useState, type FormEvent } from "react";
 import type { UserWithRoles } from "./api";
 import { errorMessage, useRbacAdmin } from "./context";
 import { fmt } from "./labels";
-import { displayName, filterUsers } from "./logic";
+import type { GroupMapping } from "../types";
+import { displayName, filterUsers, rolesViaGroups } from "./logic";
 import { RoleChips, RolePicker } from "./role-picker";
 import { Alert, Button, Empty, Field, Icon, Modal } from "./ui";
 
 type Editing = { user: UserWithRoles; isNew: false } | { user: null; isNew: true } | null;
 
 /**
- * Users and their direct roles. The list comes from the app's `listUsers`
- * plus anyone already holding a role; others can be added by user ID.
+ * Users and their roles: the direct ones (editable here) and, when the app's
+ * `listUsers` returns the user's groups, the ones they get through IdP group
+ * mappings (read-only here). The list comes from `listUsers` plus anyone
+ * already holding a direct role; others can be added by user ID.
  */
 export function UserRoles() {
   const { api, labels } = useRbacAdmin();
   const [users, setUsers] = useState<UserWithRoles[] | null>(null);
+  const [mappings, setMappings] = useState<GroupMapping[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<Editing>(null);
@@ -26,10 +30,11 @@ export function UserRoles() {
 
   useEffect(() => {
     let live = true;
-    api.users().then(
-      (list) => {
+    Promise.all([api.users(), api.groups()]).then(
+      ([list, groups]) => {
         if (!live) return;
         setUsers(list);
+        setMappings(groups);
         setError(null);
       },
       (err: unknown) => {
@@ -93,7 +98,7 @@ export function UserRoles() {
                     )}
                   </td>
                   <td>
-                    <RoleChips roleIds={user.roleIds} />
+                    <RoleChips roleIds={user.roleIds} inherited={rolesViaGroups(user.groups, mappings, user.roleIds)} />
                   </td>
                   <td className="rbac-col-actions">
                     <Button size="sm" onClick={() => setEditing({ user, isNew: false })}>
@@ -112,6 +117,7 @@ export function UserRoles() {
         <UserRolesDialog
           key={editing.user?.id ?? "new"}
           editing={editing}
+          mappings={mappings}
           onClose={() => setEditing(null)}
           onSaved={() => setVersion((v) => v + 1)}
         />
@@ -122,10 +128,12 @@ export function UserRoles() {
 
 function UserRolesDialog({
   editing,
+  mappings,
   onClose,
   onSaved,
 }: {
   editing: NonNullable<Editing>;
+  mappings: GroupMapping[];
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -135,6 +143,7 @@ function UserRolesDialog({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const name = editing.user ? displayName(editing.user) : userId.trim();
+  const inherited = rolesViaGroups(editing.user?.groups, mappings, roleIds);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -173,6 +182,12 @@ function UserRolesDialog({
           </Field>
         )}
         <RolePicker value={roleIds} onChange={setRoleIds} />
+        {inherited.length > 0 && (
+          <div className="rbac-inherited">
+            <p className="rbac-hint">{labels.inheritedRolesNote}</p>
+            <RoleChips roleIds={[]} inherited={inherited} />
+          </div>
+        )}
         <div className="rbac-form__actions">
           <Button onClick={onClose} disabled={busy}>
             {labels.cancel}

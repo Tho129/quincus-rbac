@@ -8,7 +8,8 @@ export interface Me {
   permissions: string[];
 }
 
-export interface UserWithRoles extends TenantUser {
+export interface UserWithRoles extends Omit<TenantUser, "groups"> {
+  groups?: string[];
   roleIds: string[];
 }
 

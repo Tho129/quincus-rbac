@@ -71,6 +71,8 @@ export const DEFAULT_LABELS = {
   colUser: "User",
   colRoles: "Roles",
   noRoles: "No roles",
+  viaGroup: "via {group}",
+  inheritedRolesNote: "Also gets these roles from identity-provider groups (change them in the IdP groups tab):",
   editUserRoles: "Roles for {name}",
   editRoles: "Edit roles",
   noUsers: "No users yet. Use “Assign by user ID” to give someone a role.",

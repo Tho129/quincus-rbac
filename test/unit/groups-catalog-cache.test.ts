@@ -50,6 +50,7 @@ test("buildCatalog keeps labels and descriptions from the object form", () => {
   const catalog = buildCatalog({
     order: {
       label: "Orders",
+      description: "Customer orders",
       actions: { view: "View orders", edit: { label: "Edit orders", description: "Change quantities" }, delete: {} },
     },
   });
@@ -57,6 +58,7 @@ test("buildCatalog keeps labels and descriptions from the object form", () => {
   assert.deepEqual(catalog.groups[0], {
     resource: "order",
     label: "Orders",
+    description: "Customer orders",
     permissions: [
       { key: "order:view", action: "view", label: "View orders" },
       { key: "order:edit", action: "edit", label: "Edit orders", description: "Change quantities" },

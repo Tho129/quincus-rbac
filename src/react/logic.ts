@@ -1,5 +1,5 @@
 import type { CatalogGroup } from "../catalog";
-import type { Role } from "../types";
+import type { GroupMapping, Role } from "../types";
 import type { UserWithRoles } from "./api";
 
 /**
@@ -72,16 +72,6 @@ export function displayName(user: Pick<UserWithRoles, "id" | "name" | "email">):
   return user.name || user.email || user.id;
 }
 
-const PALETTE = ["#2563eb", "#16a34a", "#9333ea", "#ea580c", "#db2777", "#0891b2", "#ca8a04", "#64748b"];
-
-/** A colour per role that stays the same when other roles come and go; the system role is always amber. */
-export function roleColor(role: Pick<Role, "id" | "isSystem">): string {
-  if (role.isSystem) return "#d97706";
-  let hash = 0;
-  for (const ch of role.id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  return PALETTE[hash % PALETTE.length]!;
-}
-
 /** Whether `held` covers `wanted`: every listed permission ("all") or at least one ("any"). */
 export function hasPermissions(
   held: readonly string[],
@@ -91,4 +81,35 @@ export function hasPermissions(
   const list: readonly string[] = typeof wanted === "string" ? [wanted] : wanted;
   if (list.length === 0) return mode === "all";
   return mode === "all" ? list.every((p) => held.includes(p)) : list.some((p) => held.includes(p));
+}
+
+export interface InheritedRole {
+  roleId: string;
+  /** The user's groups that grant it, in mapping order. */
+  groups: string[];
+}
+
+/**
+ * Roles a user gets through their IdP groups and not already directly —
+ * what the Users tab shows next to the direct roles.
+ */
+export function rolesViaGroups(
+  userGroups: readonly string[] | undefined,
+  mappings: readonly GroupMapping[],
+  directRoleIds: readonly string[],
+): InheritedRole[] {
+  if (!userGroups?.length) return [];
+  const mine = new Set(userGroups);
+  const direct = new Set(directRoleIds);
+  const byRole = new Map<string, string[]>();
+  for (const m of mappings) {
+    if (!mine.has(m.group)) continue;
+    for (const roleId of m.roleIds) {
+      if (direct.has(roleId)) continue;
+      const groups = byRole.get(roleId) ?? [];
+      groups.push(m.group);
+      byRole.set(roleId, groups);
+    }
+  }
+  return [...byRole].map(([roleId, groups]) => ({ roleId, groups }));
 }

@@ -39,6 +39,7 @@ export const rbac = createRbac({
   permissions: {
     order: {
       label: "Orders",
+      description: "Customer orders and their delivery details",
       actions: {
         view: { label: "View orders", description: "See the orders list and order details" },
         create: "Create orders",
@@ -60,7 +61,7 @@ export const rbac = createRbac({
     return user ? { userId: user.id, tenantId: user.tenantId, groups: user.groups } : null;
   },
   listUsers: async (tenantId) =>
-    DEMO_USERS.filter((u) => u.tenantId === tenantId).map(({ id, name, email }) => ({ id, name, email })),
+    DEMO_USERS.filter((u) => u.tenantId === tenantId).map(({ id, name, email, groups }) => ({ id, name, email, groups })),
 });
 
 /** Each tenant starts with an administrator; acme also gets a few roles to play with. */

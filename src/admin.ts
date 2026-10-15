@@ -1,5 +1,6 @@
 import { RBAC_MANAGE, type Catalog } from "./catalog";
 import { RbacError } from "./errors";
+import { parseGroups } from "./groups";
 import type { RbacStorage } from "./storage/types";
 import type {
   GroupMapping,
@@ -35,7 +36,9 @@ export interface RolePatch {
   permissions?: string[];
 }
 
-export interface TenantUserWithRoles extends TenantUser {
+export interface TenantUserWithRoles extends Omit<TenantUser, "groups"> {
+  /** Normalised IdP groups; absent when `listUsers` did not provide them. */
+  groups?: string[];
   roleIds: string[];
 }
 
@@ -167,7 +170,11 @@ export function createAdmin(deps: AdminDeps) {
         storage.listUserAssignments(ctx.tenantId),
       ]);
       const roleIds = new Map(assignments.map((a) => [a.userId, a.roleIds]));
-      const out: TenantUserWithRoles[] = known.map((u) => ({ ...u, roleIds: roleIds.get(u.id) ?? [] }));
+      const out: TenantUserWithRoles[] = known.map(({ groups, ...u }) => ({
+        ...u,
+        ...(groups === undefined ? {} : { groups: parseGroups(groups) }),
+        roleIds: roleIds.get(u.id) ?? [],
+      }));
       const seen = new Set(known.map((u) => u.id));
       for (const a of assignments) if (!seen.has(a.userId)) out.push({ id: a.userId, roleIds: a.roleIds });
       return out;

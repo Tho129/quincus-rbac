@@ -7,6 +7,8 @@ export type ActionSpec = string | { label?: string; description?: string };
 /** A resource with display text: `{ label: "Orders", actions: { view: "View orders" } }`. */
 export interface ResourceSpec {
   label?: string;
+  /** Shown under the resource's heading in the permission matrix. */
+  description?: string;
   actions: Readonly<Record<string, ActionSpec>>;
 }
 
@@ -38,6 +40,7 @@ export interface CatalogPermission {
 export interface CatalogGroup {
   resource: string;
   label: string;
+  description?: string;
   permissions: CatalogPermission[];
 }
 
@@ -68,6 +71,7 @@ export function buildCatalog(map: PermissionMap): Catalog {
     const group: CatalogGroup = {
       resource,
       label: (!isList && (spec as ResourceSpec).label) || humanize(resource),
+      ...(!isList && (spec as ResourceSpec).description ? { description: (spec as ResourceSpec).description } : {}),
       permissions: [],
     };
     for (const [action, actionSpec] of actions) {

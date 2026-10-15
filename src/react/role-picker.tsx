@@ -1,7 +1,8 @@
 "use client";
 
 import { useRbacAdmin } from "./context";
-import { roleColor } from "./logic";
+import { fmt } from "./labels";
+import type { InheritedRole } from "./logic";
 import { Badge } from "./ui";
 
 /** A checkbox list of the tenant's roles. */
@@ -23,7 +24,6 @@ export function RolePicker({ value, onChange }: { value: string[]; onChange: (ro
               onChange(roles.filter((r) => next.has(r.id)).map((r) => r.id));
             }}
           />
-          <span className="rbac-dot" style={{ background: roleColor(role) }} />
           <span className="rbac-picker__name">{role.name}</span>
           {role.isSystem && <Badge tone="warning">{labels.typeSystem}</Badge>}
         </label>
@@ -32,19 +32,32 @@ export function RolePicker({ value, onChange }: { value: string[]; onChange: (ro
   );
 }
 
-/** The roles behind a list of ids, as coloured chips. */
-export function RoleChips({ roleIds }: { roleIds: string[] }) {
+/**
+ * A user's roles as chips: direct roles first, then the ones they get through
+ * IdP groups (dashed, "via <group>").
+ */
+export function RoleChips({ roleIds, inherited = [] }: { roleIds: string[]; inherited?: InheritedRole[] }) {
   const { roles, labels } = useRbacAdmin();
-  const held = roles.filter((role) => roleIds.includes(role.id));
-  if (held.length === 0) return <span className="rbac-muted">{labels.noRoles}</span>;
+  const name = (id: string) => roles.find((r) => r.id === id)?.name;
+  const direct = roles.filter((role) => roleIds.includes(role.id));
+  const viaGroups = inherited.filter((r) => name(r.roleId));
+  if (direct.length === 0 && viaGroups.length === 0) return <span className="rbac-muted">{labels.noRoles}</span>;
   return (
     <div className="rbac-chips">
-      {held.map((role) => (
+      {direct.map((role) => (
         <span key={role.id} className="rbac-chip">
-          <span className="rbac-dot" style={{ background: roleColor(role) }} />
           {role.name}
         </span>
       ))}
+      {viaGroups.map((r) => {
+        const via = fmt(labels.viaGroup, { group: r.groups.join(", ") });
+        return (
+          <span key={r.roleId} className="rbac-chip rbac-chip--inherited" title={via}>
+            {name(r.roleId)}
+            <span className="rbac-chip__via">{via}</span>
+          </span>
+        );
+      })}
     </div>
   );
 }

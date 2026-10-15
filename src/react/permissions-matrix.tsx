@@ -3,7 +3,7 @@
 import { Fragment, useMemo, useState } from "react";
 import { errorMessage, useRbacAdmin } from "./context";
 import { fmt } from "./labels";
-import { dirtyRoleIds, permissionsByRole, roleColor, toggleAll, togglePermission } from "./logic";
+import { dirtyRoleIds, permissionsByRole, toggleAll, togglePermission } from "./logic";
 import { Alert, Button, Empty, Icon, Switch } from "./ui";
 
 /**
@@ -81,10 +81,7 @@ export function PermissionsMatrix() {
                 const anyOn = (draft[role.id] ?? []).length > 0;
                 return (
                   <th key={role.id} className="rbac-matrix__role">
-                    <div className="rbac-matrix__role-name">
-                      <span className="rbac-dot" style={{ background: roleColor(role) }} />
-                      {role.name}
-                    </div>
+                    <div className="rbac-matrix__role-name">{role.name}</div>
                     <button
                       type="button"
                       className={`rbac-pill${anyOn ? " rbac-pill--on" : ""}`}
@@ -118,6 +115,7 @@ export function PermissionsMatrix() {
                         <span className="rbac-muted rbac-small">
                           · {fmt(labels.permissionCountShort, { count: group.permissions.length })}
                         </span>
+                        {group.description && <span className="rbac-matrix__group-desc">{group.description}</span>}
                       </button>
                     </td>
                   </tr>

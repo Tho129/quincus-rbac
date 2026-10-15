@@ -87,6 +87,7 @@ export const rbac = createRbac({
   permissions: {
     order: {
       label: "Orders", // shown in the admin UI
+      description: "Customer orders and their delivery details", // optional, under the heading
       actions: {
         view: "View orders",
         edit: { label: "Edit orders", description: "Change quantities and dates" },
@@ -98,7 +99,9 @@ export const rbac = createRbac({
   getUser: async (req?: Request) => {
     // Return the VERIFIED identity, or null when signed out. See "getUser recipes".
   },
-  listUsers: async (tenantId) => [], // optional: users offered by the admin API when assigning roles
+  // Optional: the tenant's users for the admin UI. Return `groups` too (string[] or
+  // Cognito's "[A, B]") and the Users tab also shows the roles each user gets from groups.
+  listUsers: async (tenantId) => [], // [{ id, name?, email?, groups? }]
   onChange: async (event) => {},     // optional: write admin changes to the app's audit log
 });
 ```
@@ -270,8 +273,21 @@ Callers using them directly must check `rbac:manage` themselves.
 |---|---|
 | Roles | List roles; add (optionally copying another role's permissions), rename, describe, delete. The system role is read-only. |
 | Permissions | Roles × permissions matrix grouped by resource, as toggles; "All on / All off" per role; collapsible groups; a sticky "unsaved changes" bar. Turning an action on also turns on that resource's `view`, and turning `view` off turns off the rest of the resource. |
-| Users | Users from `listUsers` plus anyone holding a role; search; edit a user's roles; "Assign by user ID" for users the app does not list. |
+| Users | Users from `listUsers` plus anyone holding a role; search; edit a user's direct roles; "Assign by user ID" for users the app does not list. Roles a user gets through IdP groups show as dashed "via <group>" chips (needs `groups` from `listUsers`). |
 | IdP groups | Map an identity-provider group name to roles; edit; remove. |
+
+**Users vs IdP groups.** Both give roles, and a user's permissions are the
+union of both:
+
+- **Direct** (`userId → role`): for individual people and exceptions, and for
+  apps without IdP groups.
+- **Group** (`IdP group → role`): for organisations that already manage
+  people in Azure AD / Cognito groups. Someone added to the "Finance" group in
+  the IdP gets the Finance role on their next request, and removing them from
+  the group takes it away, without anyone opening this page.
+
+An app that does not use IdP groups can hide that tab:
+`<RbacAdmin tabs={["roles", "permissions", "users"]} />`.
 
 - Users without `rbac:manage` see a "You don't have access" panel. Every
   change goes through the admin API, which enforces the same rules (including

@@ -7,8 +7,8 @@ import {
   displayName,
   filterUsers,
   hasPermissions,
+  rolesViaGroups,
   orderByCatalog,
-  roleColor,
   sameSet,
   toggleAll,
   togglePermission,
@@ -67,13 +67,6 @@ test("displayName falls back from name to email to id", () => {
   assert.equal(displayName({ id: "u1" }), "u1");
 });
 
-test("roleColor is amber for the system role and depends only on the role id", () => {
-  assert.equal(roleColor({ id: "s", isSystem: true }), "#d97706");
-  const id = "3f1c2a90-0000-4000-8000-000000000001";
-  assert.equal(roleColor({ id, isSystem: false }), roleColor({ id, isSystem: false }));
-  assert.notEqual(roleColor({ id, isSystem: false }), "#d97706");
-});
-
 test("fmt fills placeholders and leaves unknown ones", () => {
   assert.equal(fmt("Delete “{name}”? {count}/{total}", { name: "Ops", count: 2, total: 5 }), "Delete “Ops”? 2/5");
   assert.equal(fmt("{missing}", {}), "{missing}");
@@ -88,4 +81,19 @@ test("hasPermissions: all / any, single or list", () => {
   assert.equal(hasPermissions([], ["order:view"], "any"), false);
   assert.equal(hasPermissions([], [], "all"), true, "nothing required");
   assert.equal(hasPermissions(held, [], "any"), false);
+});
+
+test("rolesViaGroups lists roles from the user's groups that are not direct", () => {
+  const mappings = [
+    { group: "Finance", roleIds: ["r-fin", "r-view"] },
+    { group: "Staff", roleIds: ["r-view"] },
+    { group: "Other", roleIds: ["r-x"] },
+  ];
+  assert.deepEqual(rolesViaGroups(["Finance", "Staff"], mappings, []), [
+    { roleId: "r-fin", groups: ["Finance"] },
+    { roleId: "r-view", groups: ["Finance", "Staff"] },
+  ]);
+  assert.deepEqual(rolesViaGroups(["Finance"], mappings, ["r-fin"]), [{ roleId: "r-view", groups: ["Finance"] }], "direct roles are not repeated");
+  assert.deepEqual(rolesViaGroups(undefined, mappings, []), []);
+  assert.deepEqual(rolesViaGroups(["Nobody"], mappings, []), []);
 });

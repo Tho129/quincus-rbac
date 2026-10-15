@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import type { Role } from "../types";
 import { errorMessage, useRbacAdmin } from "./context";
 import { fmt } from "./labels";
-import { allKeys, roleColor } from "./logic";
+import { allKeys } from "./logic";
 import { Alert, Badge, Button, Field, Icon, Modal } from "./ui";
 
 type Editing = { mode: "create" } | { mode: "edit"; role: Role } | null;
@@ -40,13 +40,8 @@ export function RolesManager() {
             {roles.map((role) => (
               <tr key={role.id}>
                 <td>
-                  <div className="rbac-role-cell">
-                    <span className="rbac-dot" style={{ background: roleColor(role) }} />
-                    <div>
-                      <div className="rbac-strong">{role.name}</div>
-                      {role.description && <div className="rbac-muted rbac-small">{role.description}</div>}
-                    </div>
-                  </div>
+                  <div className="rbac-strong">{role.name}</div>
+                  {role.description && <div className="rbac-muted rbac-small">{role.description}</div>}
                 </td>
                 <td>
                   {role.isSystem ? (

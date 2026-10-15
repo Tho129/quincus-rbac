@@ -89,15 +89,6 @@ export function Badge({ children, tone = "neutral" }: { children: ReactNode; ton
   return <span className={`rbac-badge rbac-badge--${tone}`}>{children}</span>;
 }
 
-export function RoleChip({ name, color }: { name: string; color: string }) {
-  return (
-    <span className="rbac-chip">
-      <span className="rbac-dot" style={{ background: color }} />
-      {name}
-    </span>
-  );
-}
-
 export function Alert({ children, tone = "danger" }: { children: ReactNode; tone?: "danger" | "warning" | "info" }) {
   return (
     <div className={`rbac-alert rbac-alert--${tone}`} role={tone === "danger" ? "alert" : "status"}>
