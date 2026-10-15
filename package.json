@@ -5,7 +5,7 @@
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QuincusDev/quincus-rbac.git"
+    "url": "git+https://github.com/Tho129/quincus-rbac.git"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,7 +36,8 @@
     "test": "node --test --require tsx/cjs test/unit/*.test.ts",
     "test:db": "node --test --require tsx/cjs test/db/*.test.ts",
     "example": "next dev example -p 3100",
-    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+    "prepublishOnly": "npm run typecheck && npm test && npm run build",
+    "prepare": "npm run build"
   },
   "peerDependencies": {
     "pg": ">=8.11",
